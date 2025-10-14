@@ -55,6 +55,7 @@ pub struct TimelineEvent {
     pub significance: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize, FromRow)]
 pub struct Incident {
     pub id: i64,

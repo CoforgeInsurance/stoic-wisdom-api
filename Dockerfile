@@ -37,11 +37,9 @@ COPY --from=builder /app/target/release/stoic-wisdom-api /app/stoic-wisdom-api
 # Copy migrations
 COPY --from=builder /app/migrations /app/migrations
 
-# Create data directory for SQLite database with proper permissions
-RUN mkdir -p /app/data && chmod 777 /app/data
-
 # Set environment variables
-ENV DATABASE_URL=sqlite:/app/data/stoic_wisdom.db
+# Use /tmp for SQLite database as it's always writable in containers
+ENV DATABASE_URL=sqlite:/tmp/stoic_wisdom.db
 ENV PORT=3000
 ENV RUST_LOG=info
 

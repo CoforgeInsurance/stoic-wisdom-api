@@ -137,3 +137,29 @@ jobs:
             --output tsv)
           echo "API deployed to: http://$FQDN:3000"
           echo "Health check: http://$FQDN:3000/health"
+
+      - name: Wait for readiness & run smoke tests
+        run: |
+          set -e
+          FQDN=$(az container show \
+             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+             --name ${{ secrets.AZURE_ACI_NAME }} \
+             --query "ipAddress.fqdn" -o tsv)
+          echo "Waiting for readiness..."
+          for i in {1..30}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://$FQDN:3000/ready || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "Ready endpoint returned 200"; break; fi; sleep 2; done
+          if [ "$STATUS" != "200" ]; then echo "Readiness check failed"; exit 1; fi
+
+          echo "Checking health endpoint"
+          curl -v http://$FQDN:3000/health || { echo "Health check failed"; exit 1; }
+
+          echo "Request random quote"
+          QUOTE_JSON=$(curl -s http://$FQDN:3000/quotes/random || true)
+          echo "Random quote response: $QUOTE_JSON"
+          if echo "$QUOTE_JSON" | grep -qi 'no such table'; then
+            echo "Database not migrated correctly"; exit 1; fi
+          if [ -z "$QUOTE_JSON" ]; then echo "Empty quote response"; exit 1; fi
+
+          echo "Smoke tests passed"

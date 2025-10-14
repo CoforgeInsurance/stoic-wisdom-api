@@ -9,11 +9,11 @@ use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+// Readiness flag shared across routes
+static READY: AtomicBool = AtomicBool::new(false);
+
 #[tokio::main]
 async fn main() {
-    // Readiness flag shared across routes
-    static READY: AtomicBool = AtomicBool::new(false);
-
     // Initialize tracing
     tracing_subscriber::registry()
         .with(

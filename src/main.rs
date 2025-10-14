@@ -3,9 +3,8 @@ mod models;
 
 use axum::{routing::get, Router};
 use sqlx::sqlite::SqlitePoolOptions;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
 use std::env;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -33,7 +32,7 @@ async fn main() {
 
     // Use a single connection for in-memory DB so migrations and queries share the same DB.
     let max_conns = if is_memory { 1 } else { 5 };
-    tracing::info!(database_url=%database_url, max_connections=%max_conns, "Initializing connection pool");
+    tracing::info!(database_url = %database_url, max_connections = %max_conns, "Initializing connection pool");
 
     let pool = SqlitePoolOptions::new()
         .max_connections(max_conns)
@@ -99,13 +98,26 @@ async fn main() {
         .expect("Server failed to start");
 }
 
-async fn health_handler(state: axum::extract::State<sqlx::SqlitePool>) -> Result<String, axum::http::StatusCode> {
+async fn health_handler(
+    state: axum::extract::State<sqlx::SqlitePool>,
+) -> Result<String, axum::http::StatusCode> {
     // Simple query to validate DB and a known table (philosophers) exists after migrations.
-    let check = sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='philosophers'")
-        .fetch_optional(&*state)
-        .await
-        .map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)?;
-    if check.is_some() { Ok("OK".to_string()) } else { Err(axum::http::StatusCode::SERVICE_UNAVAILABLE) }
+    let check =
+        sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='philosophers'")
+            .fetch_optional(&*state)
+            .await
+            .map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)?;
+    if check.is_some() {
+        Ok("OK".to_string())
+    } else {
+        Err(axum::http::StatusCode::SERVICE_UNAVAILABLE)
+    }
 }
 
-async fn readiness_handler() -> &'static str { if READY.load(Ordering::Relaxed) { "READY" } else { "NOT_READY" } }
+async fn readiness_handler() -> &'static str {
+    if READY.load(Ordering::Relaxed) {
+        "READY"
+    } else {
+        "NOT_READY"
+    }
+}

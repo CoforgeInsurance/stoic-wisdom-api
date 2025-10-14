@@ -1,5 +1,5 @@
 # Build stage
-FROM rust:1.83-alpine AS builder
+FROM rust:1.85-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache musl-dev sqlite-dev
@@ -24,7 +24,7 @@ RUN touch src/main.rs && \
     cargo build --release
 
 # Runtime stage
-FROM alpine:3.19
+FROM alpine:3.21
 
 # Install runtime dependencies
 RUN apk add --no-cache sqlite-libs libgcc

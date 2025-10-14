@@ -1,0 +1,11 @@
+# Rust specific files
+/target/
+/Cargo.lock
+/.env
+*.db
+*.sqlite
+# Docker volumes
+/docker-compose.override.yml
+# IDE specific files
+/.vscode/
+/.idea/

@@ -3,6 +3,8 @@ mod models;
 
 use axum::{routing::get, Router};
 use sqlx::sqlite::SqlitePoolOptions;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::env;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -10,6 +12,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {
+    // Readiness flag shared across routes
+    static READY: AtomicBool = AtomicBool::new(false);
+
     // Initialize tracing
     tracing_subscriber::registry()
         .with(
@@ -23,8 +28,15 @@ async fn main() {
     let database_url =
         env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:stoic_wisdom.db".to_string());
 
+    // For in-memory databases, use only 1 connection to ensure data consistency
+    let is_memory = database_url.contains(":memory:");
+
+    // Use a single connection for in-memory DB so migrations and queries share the same DB.
+    let max_conns = if is_memory { 1 } else { 5 };
+    tracing::info!(database_url=%database_url, max_connections=%max_conns, "Initializing connection pool");
+
     let pool = SqlitePoolOptions::new()
-        .max_connections(5)
+        .max_connections(max_conns)
         .connect(&database_url)
         .await
         .expect("Failed to connect to database");
@@ -35,7 +47,9 @@ async fn main() {
         .await
         .expect("Failed to run migrations");
 
-    tracing::info!("Database migrations completed successfully");
+    tracing::info!("Running database migrations");
+    READY.store(true, Ordering::Relaxed);
+    tracing::info!("Database migrations completed successfully; readiness flag set");
 
     // Build CORS layer
     let cors = CorsLayer::new()
@@ -65,7 +79,8 @@ async fn main() {
         .route("/incidents", get(handlers::list_incidents))
         .route("/incidents/:id", get(handlers::get_incident))
         // Health check
-        .route("/health", get(|| async { "OK" }))
+        .route("/health", get(health_handler))
+        .route("/ready", get(readiness_handler))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(pool);
@@ -83,3 +98,14 @@ async fn main() {
         .await
         .expect("Server failed to start");
 }
+
+async fn health_handler(state: axum::extract::State<sqlx::SqlitePool>) -> Result<String, axum::http::StatusCode> {
+    // Simple query to validate DB and a known table (philosophers) exists after migrations.
+    let check = sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='philosophers'")
+        .fetch_optional(&*state)
+        .await
+        .map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)?;
+    if check.is_some() { Ok("OK".to_string()) } else { Err(axum::http::StatusCode::SERVICE_UNAVAILABLE) }
+}
+
+async fn readiness_handler() -> &'static str { if READY.load(Ordering::Relaxed) { "READY" } else { "NOT_READY" } }

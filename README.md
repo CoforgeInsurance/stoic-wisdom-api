@@ -2,6 +2,8 @@
 
 A high-performance Rust API providing access to Stoic philosophy through curated quotes, philosopher biographies, philosophical themes, historical timelines, and significant incidents.
 
+<!-- Deployment trigger for workflow run #19 -->
+
 ## Features
 
 - **75+ High-Quality Quotes**: Carefully curated quotes from Marcus Aurelius, Seneca, and Epictetus with modern interpretations

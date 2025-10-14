@@ -38,8 +38,8 @@ COPY --from=builder /app/target/release/stoic-wisdom-api /app/stoic-wisdom-api
 COPY --from=builder /app/migrations /app/migrations
 
 # Set environment variables
-# Use in-memory SQLite database for Azure Container Instances
-ENV DATABASE_URL=sqlite::memory:
+# Use shared in-memory SQLite database for Azure Container Instances
+ENV DATABASE_URL=sqlite:file::memory:?cache=shared
 ENV PORT=3000
 ENV RUST_LOG=info
 

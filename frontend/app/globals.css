@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+/* Vintage color palette inspired by aged paper and classic books */
+:root {
+  --background: #f4f1e8;
+  --foreground: #2c2416;
+  --primary: #8b4513;
+  --secondary: #d4a574;
+  --accent: #6b4423;
+  --border: #c9b896;
+  --card-bg: #faf8f3;
+  --shadow: rgba(44, 36, 22, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-card: var(--card-bg);
+  --font-serif: "Crimson Text", "Georgia", "Times New Roman", serif;
+  --font-sans: "Lato", "Arial", sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Crimson Text", "Georgia", "Times New Roman", serif;
+  line-height: 1.7;
+}
+
+/* Vintage decorative elements */
+.vintage-divider {
+  position: relative;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.vintage-divider::before,
+.vintage-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+}
+
+.vintage-divider::before {
+  left: 0;
+}
+
+.vintage-divider::after {
+  right: 0;
+}
+
+/* Vintage paper texture overlay */
+.paper-texture {
+  position: relative;
+  overflow: hidden;
+}
+
+.paper-texture::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(44, 36, 22, 0.02) 2px,
+      rgba(44, 36, 22, 0.02) 4px
+    );
+  pointer-events: none;
+}
+
+/* Vintage button style */
+.vintage-button {
+  background: var(--primary);
+  color: var(--background);
+  border: 2px solid var(--accent);
+  padding: 0.75rem 1.5rem;
+  font-family: "Lato", "Arial", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.vintage-button:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+/* Vintage card style */
+.vintage-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.vintage-card:hover {
+  box-shadow: 0 8px 12px var(--shadow);
+  transform: translateY(-4px);
+}
+
+/* Ornamental headers */
+.ornamental-header {
+  font-family: "Crimson Text", "Georgia", "Times New Roman", serif;
+  font-weight: 700;
+  color: var(--primary);
+  position: relative;
+  display: inline-block;
+}
+
+.ornamental-header::after {
+  content: '❦';
+  position: absolute;
+  right: -2rem;
+  color: var(--secondary);
+  font-size: 0.8em;
+}
+
+/* Loading spinner - vintage style */
+@keyframes vintage-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.vintage-spinner {
+  border: 3px solid var(--border);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: vintage-spin 1s linear infinite;
+}
+

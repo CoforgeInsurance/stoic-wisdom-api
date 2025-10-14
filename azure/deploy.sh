@@ -105,7 +105,7 @@ az container create \
     --cpu 0.5 \
     --memory 0.5 \
     --environment-variables \
-        DATABASE_URL=sqlite:/tmp/stoic_wisdom.db \
+        DATABASE_URL=sqlite::memory: \
         PORT=3000 \
         RUST_LOG=info
 

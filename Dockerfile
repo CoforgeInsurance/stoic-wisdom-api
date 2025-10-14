@@ -38,8 +38,8 @@ COPY --from=builder /app/target/release/stoic-wisdom-api /app/stoic-wisdom-api
 COPY --from=builder /app/migrations /app/migrations
 
 # Set environment variables
-# Use /tmp for SQLite database as it's always writable in containers
-ENV DATABASE_URL=sqlite:/tmp/stoic_wisdom.db
+# Use in-memory SQLite database for Azure Container Instances
+ENV DATABASE_URL=sqlite::memory:
 ENV PORT=3000
 ENV RUST_LOG=info
 

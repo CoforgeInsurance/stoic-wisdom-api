@@ -1,0 +1,43 @@
+apiVersion: 2021-09-01
+location: eastus
+name: stoic-wisdom-api
+properties:
+  containers:
+  - name: stoic-wisdom-api
+    properties:
+      image: <ACR_NAME>.azurecr.io/stoic-wisdom-api:latest
+      resources:
+        requests:
+          cpu: 0.5
+          memoryInGb: 0.5
+      ports:
+      - port: 3000
+        protocol: TCP
+      environmentVariables:
+      - name: DATABASE_URL
+        value: sqlite:/app/data/stoic_wisdom.db
+      - name: PORT
+        value: "3000"
+      - name: RUST_LOG
+        value: info
+      volumeMounts:
+      - name: stoic-data
+        mountPath: /app/data
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: TCP
+      port: 3000
+    dnsNameLabel: stoic-wisdom-api
+  restartPolicy: Always
+  volumes:
+  - name: stoic-data
+    azureFile:
+      shareName: stoic-data
+      storageAccountName: <STORAGE_ACCOUNT_NAME>
+      storageAccountKey: <STORAGE_ACCOUNT_KEY>
+tags:
+  project: stoic-wisdom-api
+  environment: production
+type: Microsoft.ContainerInstance/containerGroups

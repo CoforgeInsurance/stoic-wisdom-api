@@ -8,4 +8,4 @@
 /docker-compose.override.yml
 # IDE specific files
 /.vscode/
-/.idea/
+/.idea//data/

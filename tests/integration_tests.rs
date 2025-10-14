@@ -129,5 +129,9 @@ async fn test_incidents_seeded() {
         .await
         .expect("Failed to count incidents");
 
-    assert!(count >= 10, "Should have at least 10 incidents, got {}", count);
+    assert!(
+        count >= 10,
+        "Should have at least 10 incidents, got {}",
+        count
+    );
 }

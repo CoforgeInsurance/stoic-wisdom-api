@@ -1,10 +1,7 @@
 mod handlers;
 mod models;
 
-use axum::{
-    routing::get,
-    Router,
-};
+use axum::{routing::get, Router};
 use sqlx::sqlite::SqlitePoolOptions;
 use std::env;
 use tower_http::cors::{Any, CorsLayer};
@@ -23,8 +20,9 @@ async fn main() {
         .init();
 
     // Database setup
-    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:stoic_wisdom.db".to_string());
-    
+    let database_url =
+        env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:stoic_wisdom.db".to_string());
+
     let pool = SqlitePoolOptions::new()
         .max_connections(5)
         .connect(&database_url)
@@ -50,7 +48,10 @@ async fn main() {
         // Philosophers routes
         .route("/philosophers", get(handlers::list_philosophers))
         .route("/philosophers/:id", get(handlers::get_philosopher))
-        .route("/philosophers/:id/quotes", get(handlers::get_philosopher_with_quotes))
+        .route(
+            "/philosophers/:id/quotes",
+            get(handlers::get_philosopher_with_quotes),
+        )
         // Quotes routes
         .route("/quotes", get(handlers::list_quotes))
         .route("/quotes/random", get(handlers::get_random_quote))

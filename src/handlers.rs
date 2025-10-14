@@ -69,44 +69,45 @@ pub async fn list_quotes(
          FROM quotes q 
          JOIN philosophers p ON q.philosopher_id = p.id"
     );
-    
+
     let mut conditions = Vec::new();
-    
+
     if params.theme.is_some() {
         conditions.push(
             "q.id IN (SELECT quote_id FROM quote_themes qt JOIN themes t ON qt.theme_id = t.id WHERE t.name LIKE '%' || ? || '%')"
         );
     }
-    
+
     if params.philosopher.is_some() {
         conditions.push("p.name LIKE '%' || ? || '%'");
     }
-    
+
     if params.search.is_some() {
-        conditions.push("(q.text LIKE '%' || ? || '%' OR q.modern_interpretation LIKE '%' || ? || '%')");
+        conditions
+            .push("(q.text LIKE '%' || ? || '%' OR q.modern_interpretation LIKE '%' || ? || '%')");
     }
-    
+
     if !conditions.is_empty() {
         query_str.push_str(" WHERE ");
         query_str.push_str(&conditions.join(" AND "));
     }
-    
+
     query_str.push_str(" ORDER BY q.id");
-    
+
     let mut query = sqlx::query_as::<_, QuoteWithPhilosopher>(&query_str);
-    
+
     if let Some(theme) = params.theme {
         query = query.bind(theme);
     }
-    
+
     if let Some(philosopher) = params.philosopher {
         query = query.bind(philosopher);
     }
-    
+
     if let Some(search) = &params.search {
         query = query.bind(search).bind(search);
     }
-    
+
     let quotes = query
         .fetch_all(&pool)
         .await
@@ -140,7 +141,7 @@ pub async fn get_daily_quote(
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     // Use day of year to select a consistent quote for the day
     let day_of_year = chrono::Utc::now().ordinal();
-    
+
     let quotes = sqlx::query_as::<_, QuoteWithPhilosopher>(
         "SELECT q.id, q.philosopher_id, p.name as philosopher_name, q.text, q.source, q.context, q.modern_interpretation 
          FROM quotes q 
@@ -206,7 +207,7 @@ pub async fn list_incidents(
         "SELECT i.*, p.name as philosopher_name 
          FROM incidents i 
          LEFT JOIN philosophers p ON i.philosopher_id = p.id 
-         ORDER BY i.year"
+         ORDER BY i.year",
     )
     .fetch_all(&pool)
     .await
@@ -223,7 +224,7 @@ pub async fn get_incident(
         "SELECT i.*, p.name as philosopher_name 
          FROM incidents i 
          LEFT JOIN philosophers p ON i.philosopher_id = p.id 
-         WHERE i.id = ?"
+         WHERE i.id = ?",
     )
     .bind(id)
     .fetch_optional(&pool)

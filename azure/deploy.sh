@@ -96,6 +96,7 @@ az container create \
     --resource-group "$RESOURCE_GROUP" \
     --name "$ACI_NAME" \
     --image "$ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG" \
+    --os-type Linux \
     --registry-login-server "$ACR_NAME.azurecr.io" \
     --registry-username "$ACR_USERNAME" \
     --registry-password "$ACR_PASSWORD" \

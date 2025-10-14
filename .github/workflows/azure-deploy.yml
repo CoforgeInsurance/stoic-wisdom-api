@@ -115,6 +115,7 @@ jobs:
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name ${{ secrets.AZURE_ACI_NAME }} \
             --image ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
+            --os-type Linux \
             --registry-login-server ${{ secrets.AZURE_ACR_NAME }}.azurecr.io \
             --registry-username $ACR_USERNAME \
             --registry-password $ACR_PASSWORD \

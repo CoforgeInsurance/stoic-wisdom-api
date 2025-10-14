@@ -48,5 +48,13 @@ ENV RUST_LOG=info
 # Expose port
 EXPOSE 3000
 
-# Run the application
-CMD ["/app/stoic-wisdom-api"]
+# Create startup script to handle database initialization
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'set -e' >> /app/start.sh && \
+    echo 'echo "Starting Stoic Wisdom API..."' >> /app/start.sh && \
+    echo 'echo "Database will be created at: $DATABASE_URL"' >> /app/start.sh && \
+    echo 'exec /app/stoic-wisdom-api' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+# Run the application via startup script
+CMD ["/app/start.sh"]

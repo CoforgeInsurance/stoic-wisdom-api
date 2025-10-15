@@ -27,12 +27,12 @@ async fn main() {
     let database_url =
         env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:stoic_wisdom.db".to_string());
 
-    // For in-memory databases, use only 1 connection to ensure data consistency
-    let is_memory = database_url.contains(":memory:");
+    // Detect any in-memory variant (covers :memory:, file::memory:, sqlite::memory:)
+    let is_memory = database_url.to_ascii_lowercase().contains("memory");
 
     // Use a single connection for in-memory DB so migrations and queries share the same DB.
     let max_conns = if is_memory { 1 } else { 5 };
-    tracing::info!(database_url = %database_url, max_connections = %max_conns, "Initializing connection pool");
+    tracing::info!(database_url = %database_url, is_memory=%is_memory, max_connections = %max_conns, "Initializing connection pool");
 
     let pool = SqlitePoolOptions::new()
         .max_connections(max_conns)
@@ -48,6 +48,10 @@ async fn main() {
 
     tracing::info!("Running database migrations");
     READY.store(true, Ordering::Relaxed);
+    // Count tables after migration for diagnostic purposes
+    if let Ok(count) = sqlx::query_scalar::<_, i64>(
+        "SELECT count(*) FROM sqlite_master WHERE type='table'"
+    ).fetch_one(&pool).await { tracing::info!(table_count=%count, "Post-migration table count"); }
     tracing::info!("Database migrations completed successfully; readiness flag set");
 
     // Build CORS layer

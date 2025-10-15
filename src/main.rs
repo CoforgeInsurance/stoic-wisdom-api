@@ -34,24 +34,53 @@ async fn main() {
     let max_conns = if is_memory { 1 } else { 5 };
     tracing::info!(database_url = %database_url, is_memory=%is_memory, max_connections = %max_conns, "Initializing connection pool");
 
-    let pool = SqlitePoolOptions::new()
+    // Attempt primary connection (file or memory)
+    let pool = match SqlitePoolOptions::new()
         .max_connections(max_conns)
         .connect(&database_url)
         .await
-        .expect("Failed to connect to database");
+    {
+        Ok(p) => p,
+        Err(e) => {
+            tracing::error!(error=?e, %database_url, "Primary database connection failed; falling back to in-memory");
+            let fallback_url = "sqlite:file::memory:?cache=shared".to_string();
+            let fb_pool = SqlitePoolOptions::new()
+                .max_connections(1)
+                .connect(&fallback_url)
+                .await
+                .expect("Fallback in-memory connection failed");
+            tracing::info!(fallback_url, "Using fallback in-memory database");
+            fb_pool
+        }
+    };
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await
-        .expect("Failed to run migrations");
+    // Run migrations with a retry (helps transient file permission issues on cold start)
+    let mut attempts = 0;
+    loop {
+        attempts += 1;
+        match sqlx::migrate!("./migrations").run(&pool).await {
+            Ok(_) => break,
+            Err(e) if attempts < 3 => {
+                tracing::warn!(attempt=%attempts, error=?e, "Migration attempt failed; retrying in 500ms");
+                tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+            }
+            Err(e) => {
+                tracing::error!(error=?e, attempts=%attempts, "Migrations failed after retries; aborting");
+                panic!("Failed to run migrations: {e}");
+            }
+        }
+    }
 
     tracing::info!("Running database migrations");
     READY.store(true, Ordering::Relaxed);
     // Count tables after migration for diagnostic purposes
-    if let Ok(count) = sqlx::query_scalar::<_, i64>(
-        "SELECT count(*) FROM sqlite_master WHERE type='table'"
-    ).fetch_one(&pool).await { tracing::info!(table_count=%count, "Post-migration table count"); }
+    if let Ok(count) =
+        sqlx::query_scalar::<_, i64>("SELECT count(*) FROM sqlite_master WHERE type='table'")
+            .fetch_one(&pool)
+            .await
+    {
+        tracing::info!(table_count=%count, "Post-migration table count");
+    }
     tracing::info!("Database migrations completed successfully; readiness flag set");
 
     // Build CORS layer

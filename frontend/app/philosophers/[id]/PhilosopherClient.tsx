@@ -1,3 +1,5 @@
+'use client';
+
 import { use } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
@@ -8,18 +10,7 @@ import { philosophersAPI, PhilosopherWithQuotes } from '@/lib/api';
 
 const fetcher = (id: number) => philosophersAPI.getWithQuotes(id);
 
-// Generate static params for all philosophers (Server Component function)
-export async function generateStaticParams() {
-  // For static export, pre-define the philosopher IDs (1, 2, 3)
-  return [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' },
-  ];
-}
-
-// Client Component for the actual page
-function PhilosopherDetailPage({ 
+export default function PhilosopherClient({ 
   params 
 }: { 
   params: Promise<{ id: string }> 
@@ -162,5 +153,3 @@ function PhilosopherDetailPage({
     </div>
   );
 }
-
-export default PhilosopherDetailPage;

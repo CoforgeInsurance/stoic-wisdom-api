@@ -4,10 +4,16 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/azure-static-web-apps-salmon-ocean-0433f870f.yml'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/azure-static-web-apps-salmon-ocean-0433f870f.yml'
 
 jobs:
   build_and_deploy_job:
@@ -32,6 +38,8 @@ jobs:
           api_location: "" # Api source code path - optional
           output_location: "" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://stoic-wisdom-api.eastus.azurecontainer.io:3000
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

@@ -1,11 +1,21 @@
-# Stoic Wisdom API
+# Stoic Wisdom
 
-A high-performance Rust API providing access to Stoic philosophy through curated quotes, philosopher biographies, philosophical themes, historical timelines, and significant incidents.
+A complete full-stack application providing access to Stoic philosophy through a high-performance Rust API and a vintage-themed Next.js frontend.
 
 <!-- Deployment trigger for workflow run #19 -->
 
-## Features
+## 🌟 Overview
 
+**Backend API**: High-performance Rust API delivering Stoic wisdom through RESTful endpoints  
+**Frontend**: Vintage-themed Next.js web application with engaging user experience
+
+Live Deployment:
+- **API**: http://stoic-wisdom-api.eastus.azurecontainer.io:3000
+- **Frontend**: Deploy to Azure Static Web Apps (see [deployment guide](FRONTEND_DEPLOYMENT.md))
+
+## ✨ Features
+
+### Backend API
 - **75+ High-Quality Quotes**: Carefully curated quotes from Marcus Aurelius, Seneca, and Epictetus with modern interpretations
 - **3 Philosopher Profiles**: Rich biographies detailing their lives, key works, and core teachings
 - **7 Core Stoic Themes**: With connections to CBT, neuroscience, and modern psychology
@@ -14,8 +24,22 @@ A high-performance Rust API providing access to Stoic philosophy through curated
 - **High Performance**: Response times < 50ms, Docker image < 50MB
 - **Production Ready**: Full Azure deployment support with CI/CD
 
-## Tech Stack
+### Frontend Application
+- **Vintage Design**: Classic serif typography and aged paper aesthetic
+- **Responsive Layout**: Mobile-friendly design that works on all devices
+- **Interactive Features**:
+  - Random quote generator with refresh
+  - Philosophers explorer with detailed biographies
+  - Searchable quotes with filtering
+  - Stoic themes with modern applications
+  - Historical timeline visualization
+  - "Surprise Me" page with random content
+- **Modern Tech**: Next.js 15, TypeScript, Tailwind CSS, SWR
+- **Performance**: Client-side caching, optimized builds, fast page loads
 
+## 🏗️ Tech Stack
+
+### Backend
 - **Framework**: Axum (async web framework)
 - **Runtime**: Tokio (async runtime)
 - **Database**: SQLite with sqlx (type-safe queries)
@@ -23,9 +47,19 @@ A high-performance Rust API providing access to Stoic philosophy through curated
 - **Cloud**: Azure Container Registry + Azure Container Instances
 - **CI/CD**: GitHub Actions
 
-## Quick Start
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Data Fetching**: SWR
+- **Fonts**: Crimson Text (serif), Lato (sans-serif)
+- **Deployment**: Azure Static Web Apps
 
-### Using Docker Compose (Recommended)
+## 🚀 Quick Start
+
+### Backend API
+
+#### Using Docker Compose (Recommended)
 
 ```bash
 # Clone the repository
@@ -38,7 +72,7 @@ docker-compose up
 # The API will be available at http://localhost:3000
 ```
 
-### Using Cargo (Development)
+#### Using Cargo (Development)
 
 ```bash
 # Install Rust (if not already installed)
@@ -54,6 +88,31 @@ cargo run --release
 
 # The API will be available at http://localhost:3000
 ```
+
+### Frontend Application
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# The app will be available at http://localhost:3000
+```
+
+For production deployment to Azure Static Web Apps, see [FRONTEND_DEPLOYMENT.md](FRONTEND_DEPLOYMENT.md).
+
+## 📸 Screenshots
+
+### Landing Page
+![Landing Page](https://github.com/user-attachments/assets/1c746830-c109-446d-ae40-6f0dac18b7e2)
+
+### Philosophers Page
+![Philosophers](https://github.com/user-attachments/assets/56f88cb8-9ba2-47a9-a8e2-9a4429137285)
 
 ## API Endpoints
 
@@ -341,6 +400,8 @@ Each theme includes scientific connections to CBT, neuroscience, and psychology.
 
 ## Testing Evidence
 
+### Backend API
+
 Run tests to verify implementation:
 
 ```bash
@@ -358,14 +419,46 @@ All tests verify:
 - Data seeding (philosophers, quotes, themes, timeline, incidents)
 - Data integrity and counts
 
+### Frontend Application
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Build for production
+npm run build
+
+# Run development server for testing
+npm run dev
+```
+
+Manual testing checklist:
+- All navigation links work
+- Random quote refreshes properly
+- Search and filtering work correctly
+- Responsive design on mobile devices
+- No console errors
+- CORS configuration works
+
+## 📚 Documentation
+
+- **[API Examples](API_EXAMPLES.md)** - Comprehensive API usage guide with examples
+- **[Frontend Deployment Guide](FRONTEND_DEPLOYMENT.md)** - Step-by-step Azure Static Web Apps deployment
+- **[Frontend Summary](FRONTEND_SUMMARY.md)** - Complete frontend implementation details
+- **[Frontend README](frontend/README.md)** - Frontend-specific documentation
+- **[Azure Setup](AZURE_SETUP.md)** - Backend Azure deployment configuration
+- **[Architecture](ARCHITECTURE.md)** - System architecture overview
+- **[API Specification](SPECIFICATION.md)** - API specification and data models
+- **[Project Structure](PROJECT_STRUCTURE.md)** - Complete project structure guide
+
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests: `cargo test`
-5. Run linter: `cargo clippy`
-6. Format code: `cargo fmt`
+4. Run tests: `cargo test` (backend) or `npm run build` (frontend)
+5. Run linter: `cargo clippy` (backend)
+6. Format code: `cargo fmt` (backend)
 7. Submit a pull request
 
 ## License
@@ -376,5 +469,11 @@ This project is licensed under the MIT License.
 
 For issues, questions, or contributions:
 - Open an issue on GitHub
+- Check the [Frontend Deployment Guide](FRONTEND_DEPLOYMENT.md)
 - Check the [Azure Deployment Guide](azure/DEPLOYMENT_GUIDE.md)
+- Review the [API Examples](API_EXAMPLES.md)
 - Review the API specification in [SPECIFICATION.md](SPECIFICATION.md)
+
+---
+
+**Built with ❦ for learning and exploration of Stoic philosophy**

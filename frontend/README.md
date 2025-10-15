@@ -2,6 +2,8 @@
 
 A modern, vintage-themed web application that consumes the Stoic Wisdom API. Built with Next.js 15, TypeScript, and Tailwind CSS, deployed on Azure Static Web Apps.
 
+**Live URL**: TBD (deploying now)
+
 ## Features
 
 - **Vintage Design**: Classic serif typography and aged paper aesthetic

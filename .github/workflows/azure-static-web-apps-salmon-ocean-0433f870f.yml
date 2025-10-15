@@ -36,7 +36,7 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "/frontend" # App source code path
           api_location: "" # Api source code path - optional
-          output_location: "" # Built app content directory - optional
+          output_location: "out" # Built app content directory - Next.js static export output
           ###### End of Repository/Build Configurations ######
         env:
           NEXT_PUBLIC_API_BASE_URL: http://stoic-wisdom-api.eastus.azurecontainer.io:3000

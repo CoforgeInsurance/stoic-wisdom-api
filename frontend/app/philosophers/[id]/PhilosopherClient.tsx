@@ -10,13 +10,8 @@ import { philosophersAPI, PhilosopherWithQuotes } from '@/lib/api';
 
 const fetcher = (id: number) => philosophersAPI.getWithQuotes(id);
 
-export default function PhilosopherClient({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}) {
-  const unwrappedParams = use(params);
-  const philosopherId = parseInt(unwrappedParams.id);
+export default function PhilosopherClient({ id }: { id: string }) {
+  const philosopherId = parseInt(id);
   
   const { data: philosopher, error, isLoading } = useSWR<PhilosopherWithQuotes>(
     philosopherId ? `philosopher-${philosopherId}` : null,

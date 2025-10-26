@@ -1,6 +1,6 @@
--- Create philosophers table (SQLite compatible)
+-- Create philosophers table
 CREATE TABLE IF NOT EXISTS philosophers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     era TEXT NOT NULL,
     birth_year INTEGER,
@@ -11,10 +11,10 @@ CREATE TABLE IF NOT EXISTS philosophers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create quotes table (SQLite compatible)
+-- Create quotes table
 CREATE TABLE IF NOT EXISTS quotes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    philosopher_id INTEGER NOT NULL,
+    id BIGSERIAL PRIMARY KEY,
+    philosopher_id BIGINT NOT NULL,
     text TEXT NOT NULL,
     source TEXT NOT NULL,
     context TEXT,
@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS quotes (
     FOREIGN KEY (philosopher_id) REFERENCES philosophers(id)
 );
 
--- Create themes table (SQLite compatible)
+-- Create themes table
 CREATE TABLE IF NOT EXISTS themes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
     principle TEXT NOT NULL,
@@ -38,16 +38,16 @@ CREATE TABLE IF NOT EXISTS themes (
 
 -- Create quote_themes junction table
 CREATE TABLE IF NOT EXISTS quote_themes (
-    quote_id INTEGER NOT NULL,
-    theme_id INTEGER NOT NULL,
+    quote_id BIGINT NOT NULL,
+    theme_id BIGINT NOT NULL,
     PRIMARY KEY (quote_id, theme_id),
     FOREIGN KEY (quote_id) REFERENCES quotes(id),
     FOREIGN KEY (theme_id) REFERENCES themes(id)
 );
 
--- Create timeline table (SQLite compatible)
+-- Create timeline table
 CREATE TABLE IF NOT EXISTS timeline (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     year INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
@@ -55,11 +55,11 @@ CREATE TABLE IF NOT EXISTS timeline (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create incidents table (SQLite compatible)
+-- Create incidents table
 CREATE TABLE IF NOT EXISTS incidents (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     title TEXT NOT NULL,
-    philosopher_id INTEGER,
+    philosopher_id BIGINT,
     year INTEGER,
     description TEXT NOT NULL,
     lesson TEXT NOT NULL,

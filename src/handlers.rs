@@ -170,7 +170,6 @@ pub async fn get_daily_quote(
 }
 
 // Themes endpoints
-// Themes endpoints
 pub async fn list_themes(
     State(pool): State<DbPool>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
@@ -195,7 +194,6 @@ pub async fn get_theme(
     Ok(Json(theme))
 }
 
-// Timeline endpoints
 // Timeline endpoints
 pub async fn list_timeline(
     State(pool): State<DbPool>,

@@ -6,13 +6,15 @@ use axum::{
 };
 use chrono::Datelike;
 use rand::seq::SliceRandom;
-use sqlx::SqlitePool;
+use sqlx::{Any as SqlxAny, Pool};
 
 use crate::models::*;
 
+type DbPool = Pool<SqlxAny>;
+
 // Philosophers endpoints
 pub async fn list_philosophers(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let philosophers = sqlx::query_as::<_, Philosopher>("SELECT * FROM philosophers ORDER BY name")
         .fetch_all(&pool)
@@ -23,7 +25,7 @@ pub async fn list_philosophers(
 }
 
 pub async fn get_philosopher(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let philosopher = sqlx::query_as::<_, Philosopher>("SELECT * FROM philosophers WHERE id = ?")
@@ -37,7 +39,7 @@ pub async fn get_philosopher(
 }
 
 pub async fn get_philosopher_with_quotes(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let philosopher = sqlx::query_as::<_, Philosopher>("SELECT * FROM philosophers WHERE id = ?")
@@ -61,7 +63,7 @@ pub async fn get_philosopher_with_quotes(
 
 // Quotes endpoints
 pub async fn list_quotes(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
     Query(params): Query<QuoteSearchParams>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let mut query_str = String::from(
@@ -117,7 +119,7 @@ pub async fn list_quotes(
 }
 
 pub async fn get_random_quote(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let quotes = sqlx::query_as::<_, QuoteWithPhilosopher>(
         "SELECT q.id, q.philosopher_id, p.name as philosopher_name, q.text, q.source, q.context, q.modern_interpretation 
@@ -137,7 +139,7 @@ pub async fn get_random_quote(
 }
 
 pub async fn get_daily_quote(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     // Use day of year to select a consistent quote for the day
     let day_of_year = chrono::Utc::now().ordinal();
@@ -163,7 +165,7 @@ pub async fn get_daily_quote(
 
 // Themes endpoints
 pub async fn list_themes(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let themes = sqlx::query_as::<_, Theme>("SELECT * FROM themes ORDER BY name")
         .fetch_all(&pool)
@@ -174,7 +176,7 @@ pub async fn list_themes(
 }
 
 pub async fn get_theme(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let theme = sqlx::query_as::<_, Theme>("SELECT * FROM themes WHERE id = ?")
@@ -189,7 +191,7 @@ pub async fn get_theme(
 
 // Timeline endpoints
 pub async fn list_timeline(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let events = sqlx::query_as::<_, TimelineEvent>("SELECT * FROM timeline ORDER BY year")
         .fetch_all(&pool)
@@ -201,7 +203,7 @@ pub async fn list_timeline(
 
 // Incidents endpoints
 pub async fn list_incidents(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let incidents = sqlx::query_as::<_, IncidentWithPhilosopher>(
         "SELECT i.*, p.name as philosopher_name 
@@ -217,7 +219,7 @@ pub async fn list_incidents(
 }
 
 pub async fn get_incident(
-    State(pool): State<SqlitePool>,
+    State(pool): State<DbPool>,
     Path(id): Path<i64>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let incident = sqlx::query_as::<_, IncidentWithPhilosopher>(

@@ -1,8 +1,8 @@
 # Build stage
 FROM rust:1.85-alpine AS builder
 
-# Install build dependencies
-RUN apk add --no-cache musl-dev sqlite-dev
+# Install build dependencies (added postgresql-dev for PostgreSQL support)
+RUN apk add --no-cache musl-dev sqlite-dev postgresql-dev
 
 WORKDIR /app
 
@@ -26,8 +26,8 @@ RUN touch src/main.rs && \
 # Runtime stage
 FROM alpine:3.21
 
-# Install runtime dependencies
-RUN apk add --no-cache sqlite-libs libgcc
+# Install runtime dependencies (added libpq for PostgreSQL)
+RUN apk add --no-cache sqlite-libs libgcc libpq
 
 WORKDIR /app
 
@@ -40,9 +40,10 @@ COPY --from=builder /app/migrations /app/migrations
 # Prepare writable data directory for file-based SQLite (ephemeral per container lifecycle)
 RUN mkdir -p /data && chmod 777 /data
 
-# Set environment variables (DATABASE_URL now supplied at deployment to avoid baking)
+# Set environment variables
 ENV PORT=3000 \
-    RUST_LOG=info
+    RUST_LOG=info \
+    DATABASE_URL=sqlite:/data/stoic_wisdom.db
 
 # Expose port
 EXPOSE 3000

@@ -2,7 +2,7 @@ mod handlers;
 mod models;
 
 use axum::{routing::get, Router};
-use sqlx::sqlite::SqlitePoolOptions;
+use sqlx::{Any as SqlxAny, Pool};
 use std::env;
 use std::sync::atomic::{AtomicBool, Ordering};
 use tower_http::cors::{Any, CorsLayer};
@@ -11,6 +11,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 // Readiness flag shared across routes
 static READY: AtomicBool = AtomicBool::new(false);
+
+// Database pool type that works with both SQLite and PostgreSQL
+type DbPool = Pool<SqlxAny>;
 
 #[tokio::main]
 async fn main() {
@@ -27,32 +30,26 @@ async fn main() {
     let database_url =
         env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:stoic_wisdom.db".to_string());
 
-    // Detect any in-memory variant (covers :memory:, file::memory:, sqlite::memory:)
-    let is_memory = database_url.to_ascii_lowercase().contains("memory");
+    let is_postgres = database_url.starts_with("postgres");
+    
+    tracing::info!(database_url = %database_url, is_postgres = %is_postgres, "Connecting to database");
 
-    // Use a single connection for in-memory DB so migrations and queries share the same DB.
-    let max_conns = if is_memory { 1 } else { 5 };
-    tracing::info!(database_url = %database_url, is_memory=%is_memory, max_connections = %max_conns, "Initializing connection pool");
-
-    // Attempt primary connection (file or memory)
-    let pool = match SqlitePoolOptions::new()
-        .max_connections(max_conns)
+    // Connect to database (supports both SQLite and PostgreSQL via sqlx::Any)
+    let pool = sqlx::any::AnyPoolOptions::new()
+        .max_connections(5)
         .connect(&database_url)
         .await
-    {
-        Ok(p) => p,
-        Err(e) => {
-            tracing::error!(error=?e, %database_url, "Primary database connection failed; falling back to in-memory");
-            let fallback_url = "sqlite:file::memory:?cache=shared".to_string();
-            let fb_pool = SqlitePoolOptions::new()
-                .max_connections(1)
-                .connect(&fallback_url)
-                .await
-                .expect("Fallback in-memory connection failed");
-            tracing::info!(fallback_url, "Using fallback in-memory database");
-            fb_pool
-        }
-    };
+        .unwrap_or_else(|e| {
+            tracing::error!(error=?e, %database_url, "Database connection failed; falling back to in-memory SQLite");
+            let fallback_url = "sqlite:file::memory:?cache=shared";
+            futures::executor::block_on(async {
+                sqlx::any::AnyPoolOptions::new()
+                    .max_connections(1)
+                    .connect(fallback_url)
+                    .await
+                    .expect("Fallback in-memory connection failed")
+            })
+        });
 
     // Run migrations with a retry (helps transient file permission issues on cold start)
     let mut attempts = 0;
@@ -73,13 +70,20 @@ async fn main() {
 
     tracing::info!("Running database migrations");
     READY.store(true, Ordering::Relaxed);
-    // Count tables after migration for diagnostic purposes
-    if let Ok(count) =
+    
+    // Verify tables exist with a simple query that works on both databases
+    let table_count_result = if is_postgres {
+        sqlx::query_scalar::<_, i64>("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'")
+            .fetch_one(&pool)
+            .await
+    } else {
         sqlx::query_scalar::<_, i64>("SELECT count(*) FROM sqlite_master WHERE type='table'")
             .fetch_one(&pool)
             .await
-    {
-        tracing::info!(table_count=%count, "Post-migration table count");
+    };
+    
+    if let Ok(count) = table_count_result {
+        tracing::info!(table_count=%count, is_postgres=%is_postgres, "Post-migration table count");
     }
     tracing::info!("Database migrations completed successfully; readiness flag set");
 
@@ -132,15 +136,17 @@ async fn main() {
 }
 
 async fn health_handler(
-    state: axum::extract::State<sqlx::SqlitePool>,
+    state: axum::extract::State<DbPool>,
 ) -> Result<String, axum::http::StatusCode> {
-    // Simple query to validate DB and a known table (philosophers) exists after migrations.
-    let check =
-        sqlx::query("SELECT name FROM sqlite_master WHERE type='table' AND name='philosophers'")
-            .fetch_optional(&*state)
-            .await
-            .map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)?;
-    if check.is_some() {
+    // Simple query that works for both SQLite and PostgreSQL
+    // Just check if we can query the philosophers table
+    let check = sqlx::query("SELECT id FROM philosophers LIMIT 1")
+        .fetch_optional(&*state)
+        .await
+        .map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)?;
+        
+    if check.is_some() || check.is_none() {
+        // If table exists (even if empty), we're healthy
         Ok("OK".to_string())
     } else {
         Err(axum::http::StatusCode::SERVICE_UNAVAILABLE)

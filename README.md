@@ -237,8 +237,9 @@ curl http://localhost:3000/themes
 
 ### Running Tests
 
+#### Backend Tests
 ```bash
-# Run all tests
+# Run all backend tests
 cargo test
 
 # Run with output
@@ -246,7 +247,29 @@ cargo test -- --nocapture
 
 # Run specific test
 cargo test test_philosophers_table_creation
+
+# Run integration tests only
+cargo test --test integration_tests
 ```
+
+#### Frontend E2E Tests
+```bash
+cd frontend
+
+# Run Playwright E2E tests
+npm run test:e2e
+
+# Run with UI mode
+npm run test:e2e:ui
+
+# Run performance tests
+npm run test:performance
+
+# View test report
+npm run test:report
+```
+
+See [BDD_TDD_GUIDE.md](BDD_TDD_GUIDE.md) for comprehensive testing documentation.
 
 ### Code Quality
 

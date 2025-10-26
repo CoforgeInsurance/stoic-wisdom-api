@@ -62,7 +62,7 @@ pub async fn list_quotes(
     Query(params): Query<QuoteSearchParams>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     // Build base query
-    let base_query = "SELECT q.id, q.philosopher_id, p.name as philosopher_name, q.text, q.source, q.context, q.modern_interpretation FROM quotes q JOIN philosophers p ON q.philosopher_id = p.id";
+    let base_query = "SELECT q.id, q.philosopher_id, p.name as philosopher_name, q.text, q.source, q.context, q.modern_interpretation, q.full_text FROM quotes q JOIN philosophers p ON q.philosopher_id = p.id";
     
     let mut conditions = Vec::new();
     let mut bind_count = 0;

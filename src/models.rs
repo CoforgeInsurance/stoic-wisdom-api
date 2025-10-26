@@ -6,8 +6,8 @@ pub struct Philosopher {
     pub id: i64,
     pub name: String,
     pub era: String,
-    pub birth_year: Option<i64>,
-    pub death_year: Option<i64>,
+    pub birth_year: Option<i32>,
+    pub death_year: Option<i32>,
     pub biography: String,
     pub key_works: Option<String>,
     pub core_teachings: Option<String>,
@@ -49,7 +49,8 @@ pub struct Theme {
 #[derive(Debug, Clone, Serialize, FromRow)]
 pub struct TimelineEvent {
     pub id: i64,
-    pub year: i64,
+    // Stored as INTEGER (INT4) in Postgres; map to i32 to avoid decoding mismatch
+    pub year: i32,
     pub title: String,
     pub description: String,
     pub significance: Option<String>,
@@ -61,7 +62,8 @@ pub struct Incident {
     pub id: i64,
     pub title: String,
     pub philosopher_id: Option<i64>,
-    pub year: Option<i64>,
+    // Stored as INTEGER (INT4) in Postgres; map to i32
+    pub year: Option<i32>,
     pub description: String,
     pub lesson: String,
     pub modern_relevance: Option<String>,
@@ -73,7 +75,8 @@ pub struct IncidentWithPhilosopher {
     pub title: String,
     pub philosopher_id: Option<i64>,
     pub philosopher_name: Option<String>,
-    pub year: Option<i64>,
+    // Stored as INTEGER (INT4) in Postgres; map to i32
+    pub year: Option<i32>,
     pub description: String,
     pub lesson: String,
     pub modern_relevance: Option<String>,

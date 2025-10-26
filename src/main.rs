@@ -20,6 +20,31 @@ pub enum DbPool {
 }
 
 impl DbPool {
+    // Helper to convert SQLite placeholders (?) to PostgreSQL placeholders ($1, $2, etc)
+    fn convert_query_for_postgres(query: &str) -> String {
+        let mut result = String::new();
+        let mut param_counter = 1;
+        let mut in_string = false;
+        let mut string_char = ' ';
+
+        for ch in query.chars() {
+            if (ch == '\'' || ch == '"') && !in_string {
+                in_string = true;
+                string_char = ch;
+                result.push(ch);
+            } else if ch == string_char && in_string {
+                in_string = false;
+                result.push(ch);
+            } else if ch == '?' && !in_string {
+                result.push_str(&format!("${}", param_counter));
+                param_counter += 1;
+            } else {
+                result.push(ch);
+            }
+        }
+        result
+    }
+
     // Execute a query and fetch all results
     pub async fn query_fetch_all<'q, T>(
         &self,
@@ -33,7 +58,10 @@ impl DbPool {
     {
         match self {
             DbPool::Sqlite(pool) => sqlx::query_as(query).fetch_all(pool).await,
-            DbPool::Postgres(pool) => sqlx::query_as(query).fetch_all(pool).await,
+            DbPool::Postgres(pool) => {
+                let pg_query = Self::convert_query_for_postgres(query);
+                sqlx::query_as(&pg_query).fetch_all(pool).await
+            }
         }
     }
 
@@ -51,7 +79,10 @@ impl DbPool {
     {
         match self {
             DbPool::Sqlite(pool) => sqlx::query_as(query).bind(param).fetch_all(pool).await,
-            DbPool::Postgres(pool) => sqlx::query_as(query).bind(param).fetch_all(pool).await,
+            DbPool::Postgres(pool) => {
+                let pg_query = Self::convert_query_for_postgres(query);
+                sqlx::query_as(&pg_query).bind(param).fetch_all(pool).await
+            }
         }
     }
 
@@ -69,7 +100,10 @@ impl DbPool {
     {
         match self {
             DbPool::Sqlite(pool) => sqlx::query_as(query).bind(param).fetch_optional(pool).await,
-            DbPool::Postgres(pool) => sqlx::query_as(query).bind(param).fetch_optional(pool).await,
+            DbPool::Postgres(pool) => {
+                let pg_query = Self::convert_query_for_postgres(query);
+                sqlx::query_as(&pg_query).bind(param).fetch_optional(pool).await
+            }
         }
     }
     

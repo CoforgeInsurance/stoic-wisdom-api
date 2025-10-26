@@ -1,6 +1,6 @@
--- Create philosophers table (PostgreSQL compatible)
+-- Create philosophers table (SQLite compatible)
 CREATE TABLE IF NOT EXISTS philosophers (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
     era TEXT NOT NULL,
     birth_year INTEGER,
@@ -11,9 +11,9 @@ CREATE TABLE IF NOT EXISTS philosophers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create quotes table (PostgreSQL compatible)
+-- Create quotes table (SQLite compatible)
 CREATE TABLE IF NOT EXISTS quotes (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     philosopher_id INTEGER NOT NULL,
     text TEXT NOT NULL,
     source TEXT NOT NULL,
@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS quotes (
     FOREIGN KEY (philosopher_id) REFERENCES philosophers(id)
 );
 
--- Create themes table (PostgreSQL compatible)
+-- Create themes table (SQLite compatible)
 CREATE TABLE IF NOT EXISTS themes (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
     principle TEXT NOT NULL,
@@ -45,9 +45,9 @@ CREATE TABLE IF NOT EXISTS quote_themes (
     FOREIGN KEY (theme_id) REFERENCES themes(id)
 );
 
--- Create timeline table (PostgreSQL compatible)
+-- Create timeline table (SQLite compatible)
 CREATE TABLE IF NOT EXISTS timeline (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     year INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
@@ -55,9 +55,9 @@ CREATE TABLE IF NOT EXISTS timeline (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create incidents table (PostgreSQL compatible)
+-- Create incidents table (SQLite compatible)
 CREATE TABLE IF NOT EXISTS incidents (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     philosopher_id INTEGER,
     year INTEGER,

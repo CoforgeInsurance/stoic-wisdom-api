@@ -61,60 +61,85 @@ pub async fn list_quotes(
     State(pool): State<DbPool>,
     Query(params): Query<QuoteSearchParams>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let mut query_str = String::from(
-        "SELECT q.id, q.philosopher_id, p.name as philosopher_name, q.text, q.source, q.context, q.modern_interpretation 
-         FROM quotes q 
-         JOIN philosophers p ON q.philosopher_id = p.id"
-    );
-
+    // Build base query
+    let base_query = "SELECT q.id, q.philosopher_id, p.name as philosopher_name, q.text, q.source, q.context, q.modern_interpretation FROM quotes q JOIN philosophers p ON q.philosopher_id = p.id";
+    
     let mut conditions = Vec::new();
+    let mut bind_count = 0;
 
     if params.theme.is_some() {
-        conditions.push(
-            "q.id IN (SELECT quote_id FROM quote_themes qt JOIN themes t ON qt.theme_id = t.id WHERE t.name LIKE '%' || ? || '%')"
-        );
+        bind_count += 1;
+        conditions.push(format!("q.id IN (SELECT quote_id FROM quote_themes qt JOIN themes t ON qt.theme_id = t.id WHERE t.name ILIKE ${bind_count})"));
     }
 
     if params.philosopher.is_some() {
-        conditions.push("p.name LIKE '%' || ? || '%'");
+        bind_count += 1;
+        conditions.push(format!("p.name ILIKE ${bind_count}"));
     }
 
     if params.search.is_some() {
-        conditions
-            .push("(q.text LIKE '%' || ? || '%' OR q.modern_interpretation LIKE '%' || ? || '%')");
+        bind_count += 1;
+        let search_cond = bind_count;
+        bind_count += 1;
+        conditions.push(format!("(q.text ILIKE ${search_cond} OR q.modern_interpretation ILIKE ${bind_count})"));
     }
 
+    let mut pg_query_str = base_query.to_string();
     if !conditions.is_empty() {
-        query_str.push_str(" WHERE ");
-        query_str.push_str(&conditions.join(" AND "));
+        pg_query_str.push_str(" WHERE ");
+        pg_query_str.push_str(&conditions.join(" AND "));
     }
+    pg_query_str.push_str(" ORDER BY q.id");
 
-    query_str.push_str(" ORDER BY q.id");
+    // For SQLite, use LIKE instead of ILIKE
+    let mut sqlite_query_str = pg_query_str.clone();
+    sqlite_query_str = sqlite_query_str.replace("ILIKE", "LIKE");
+    // Convert $N placeholders to ? for SQLite
+    let mut placeholder_count = 0;
+    let mut sqlite_query_final = String::new();
+    let mut in_placeholder = false;
+    for ch in sqlite_query_str.chars() {
+        if ch == '$' {
+            in_placeholder = true;
+        } else if in_placeholder && ch.is_ascii_digit() {
+            // Skip the digit, we'll just use ?
+        } else {
+            if in_placeholder {
+                sqlite_query_final.push('?');
+                placeholder_count += 1;
+            }
+            in_placeholder = false;
+            sqlite_query_final.push(ch);
+        }
+    }
+    if in_placeholder {
+        sqlite_query_final.push('?');
+    }
 
     let quotes = match &pool {
         DbPool::Sqlite(sqlite_pool) => {
-            let mut query = sqlx::query_as::<_, QuoteWithPhilosopher>(&query_str);
+            let mut query = sqlx::query_as::<_, QuoteWithPhilosopher>(&sqlite_query_final);
             if let Some(theme) = params.theme {
-                query = query.bind(theme);
+                query = query.bind(format!("%{}%", theme));
             }
             if let Some(philosopher) = params.philosopher {
-                query = query.bind(philosopher);
+                query = query.bind(format!("%{}%", philosopher));
             }
             if let Some(search) = &params.search {
-                query = query.bind(search).bind(search);
+                query = query.bind(format!("%{}%", search)).bind(format!("%{}%", search));
             }
             query.fetch_all(sqlite_pool).await
         }
         DbPool::Postgres(pg_pool) => {
-            let mut query = sqlx::query_as::<_, QuoteWithPhilosopher>(&query_str);
+            let mut query = sqlx::query_as::<_, QuoteWithPhilosopher>(&pg_query_str);
             if let Some(theme) = params.theme {
-                query = query.bind(theme);
+                query = query.bind(format!("%{}%", theme));
             }
             if let Some(philosopher) = params.philosopher {
-                query = query.bind(philosopher);
+                query = query.bind(format!("%{}%", philosopher));
             }
             if let Some(search) = &params.search {
-                query = query.bind(search).bind(search);
+                query = query.bind(format!("%{}%", search)).bind(format!("%{}%", search));
             }
             query.fetch_all(pg_pool).await
         }

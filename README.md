@@ -45,7 +45,7 @@ See [Render.com Deployment Guide](RENDER_DEPLOYMENT_GUIDE.md) for deployment ins
 ### Backend
 - **Framework**: Axum (async web framework)
 - **Runtime**: Tokio (async runtime)
-- **Database**: PostgreSQL with sqlx (type-safe queries, SQLite also supported)
+- **Database**: PostgreSQL with sqlx (type-safe queries)
 - **Containerization**: Docker with multi-stage builds
 - **Cloud**: Render.com Web Services
 - **CI/CD**: Automatic deployment from GitHub
@@ -289,8 +289,8 @@ cargo clippy -- -D warnings
 Migrations are automatically applied on startup. Manual migration:
 
 ```bash
-# Install sqlx-cli
-cargo install sqlx-cli --no-default-features --features sqlite
+# Install sqlx-cli for PostgreSQL
+cargo install sqlx-cli --no-default-features --features postgres
 
 # Run migrations
 sqlx migrate run
@@ -345,7 +345,7 @@ Deployment happens automatically - no GitHub Actions configuration needed!
 - **Response Time**: < 50ms for most endpoints
 - **Docker Image**: < 50MB (multi-stage build with Alpine)
 - **Memory Footprint**: ~50MB running container
-- **Database**: PostgreSQL with connection pooling (SQLite supported for local dev)
+- **Database**: PostgreSQL with connection pooling
 - **Optimization**: Release build with LTO and stripped binaries
 
 ## Project Structure
@@ -382,7 +382,7 @@ stoic-wisdom-api/
 ### Technology Choices
 
 - **Axum**: High-performance async web framework built on Tokio
-- **PostgreSQL**: Robust relational database with excellent scalability (SQLite also supported)
+- **PostgreSQL**: Robust relational database with excellent scalability
 - **sqlx**: Compile-time checked SQL queries for type safety
 - **Tower**: Middleware for CORS and tracing
 

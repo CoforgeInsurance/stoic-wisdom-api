@@ -4,8 +4,13 @@
 /.env
 *.db
 *.sqlite
+
+# Migration backups
+/migrations-sqlite-backup/
+
 # Docker volumes
 /docker-compose.override.yml
+
 # IDE specific files
 /.vscode/
 /.idea/

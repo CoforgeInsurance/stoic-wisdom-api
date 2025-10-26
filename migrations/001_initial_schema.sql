@@ -1,6 +1,6 @@
--- Create philosophers table
+-- Create philosophers table (PostgreSQL compatible)
 CREATE TABLE IF NOT EXISTS philosophers (
-    id BIGSERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     era TEXT NOT NULL,
     birth_year INTEGER,
@@ -11,10 +11,10 @@ CREATE TABLE IF NOT EXISTS philosophers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create quotes table
+-- Create quotes table (PostgreSQL compatible)
 CREATE TABLE IF NOT EXISTS quotes (
-    id BIGSERIAL PRIMARY KEY,
-    philosopher_id BIGINT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    philosopher_id INTEGER NOT NULL,
     text TEXT NOT NULL,
     source TEXT NOT NULL,
     context TEXT,
@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS quotes (
     FOREIGN KEY (philosopher_id) REFERENCES philosophers(id)
 );
 
--- Create themes table
+-- Create themes table (PostgreSQL compatible)
 CREATE TABLE IF NOT EXISTS themes (
-    id BIGSERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
     principle TEXT NOT NULL,
@@ -38,16 +38,16 @@ CREATE TABLE IF NOT EXISTS themes (
 
 -- Create quote_themes junction table
 CREATE TABLE IF NOT EXISTS quote_themes (
-    quote_id BIGINT NOT NULL,
-    theme_id BIGINT NOT NULL,
+    quote_id INTEGER NOT NULL,
+    theme_id INTEGER NOT NULL,
     PRIMARY KEY (quote_id, theme_id),
     FOREIGN KEY (quote_id) REFERENCES quotes(id),
     FOREIGN KEY (theme_id) REFERENCES themes(id)
 );
 
--- Create timeline table
+-- Create timeline table (PostgreSQL compatible)
 CREATE TABLE IF NOT EXISTS timeline (
-    id BIGSERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     year INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
@@ -55,11 +55,11 @@ CREATE TABLE IF NOT EXISTS timeline (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create incidents table
+-- Create incidents table (PostgreSQL compatible)
 CREATE TABLE IF NOT EXISTS incidents (
-    id BIGSERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
-    philosopher_id BIGINT,
+    philosopher_id INTEGER,
     year INTEGER,
     description TEXT NOT NULL,
     lesson TEXT NOT NULL,

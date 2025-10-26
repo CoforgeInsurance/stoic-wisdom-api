@@ -1,12 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
-  images: {
-    unoptimized: true,
-  },
-  // Skip build-time generation of dynamic routes
-  // They will be client-side rendered instead
+  // Removed 'output: export' to enable SSR
+  // Removed 'images.unoptimized' to use Next.js image optimization
+  // Keep trailing slashes for better routing
   trailingSlash: true,
 };
 

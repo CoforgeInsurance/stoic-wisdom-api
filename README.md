@@ -7,11 +7,14 @@ A complete full-stack application providing access to Stoic philosophy through a
 ## 🌟 Overview
 
 **Backend API**: High-performance Rust API delivering Stoic wisdom through RESTful endpoints  
-**Frontend**: Vintage-themed Next.js web application with engaging user experience
+**Frontend**: Vintage-themed Next.js web application with server-side rendering
 
-Live Deployment:
-- **API**: http://stoic-wisdom-api.eastus.azurecontainer.io:3000
-- **Frontend**: Deploy to Azure Static Web Apps (see [deployment guide](FRONTEND_DEPLOYMENT.md))
+**Deployment**: Render.com (PostgreSQL + Docker + Node.js SSR)
+- Easy one-click deployment via Blueprint
+- Automatic CI/CD from GitHub
+- Free tier available
+
+See [Render.com Deployment Guide](RENDER_DEPLOYMENT_GUIDE.md) for deployment instructions.
 
 ## ✨ Features
 
@@ -22,7 +25,7 @@ Live Deployment:
 - **Historical Timeline**: 24 key events in Stoic philosophy from 300 BCE to present
 - **15 Historical Incidents**: Stories with lessons and modern relevance
 - **High Performance**: Response times < 50ms, Docker image < 50MB
-- **Production Ready**: Full Azure deployment support with CI/CD
+- **Production Ready**: Render.com deployment with PostgreSQL
 
 ### Frontend Application
 - **Vintage Design**: Classic serif typography and aged paper aesthetic
@@ -34,26 +37,26 @@ Live Deployment:
   - Stoic themes with modern applications
   - Historical timeline visualization
   - "Surprise Me" page with random content
-- **Modern Tech**: Next.js 15, TypeScript, Tailwind CSS, SWR
-- **Performance**: Client-side caching, optimized builds, fast page loads
+- **Modern Tech**: Next.js 15 SSR, TypeScript, Tailwind CSS, SWR
+- **Performance**: Server-side rendering, optimized builds, fast page loads
 
 ## 🏗️ Tech Stack
 
 ### Backend
 - **Framework**: Axum (async web framework)
 - **Runtime**: Tokio (async runtime)
-- **Database**: SQLite with sqlx (type-safe queries)
+- **Database**: PostgreSQL with sqlx (type-safe queries, SQLite also supported)
 - **Containerization**: Docker with multi-stage builds
-- **Cloud**: Azure Container Registry + Azure Container Instances
-- **CI/CD**: GitHub Actions
+- **Cloud**: Render.com Web Services
+- **CI/CD**: Automatic deployment from GitHub
 
 ### Frontend
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 15 (App Router with SSR)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4
 - **Data Fetching**: SWR
 - **Fonts**: Crimson Text (serif), Lato (sans-serif)
-- **Deployment**: Azure Static Web Apps
+- **Deployment**: Render.com Web Services (Node.js)
 
 ## 🚀 Quick Start
 
@@ -104,7 +107,7 @@ npm run dev
 # The app will be available at http://localhost:3000
 ```
 
-For production deployment to Azure Static Web Apps, see [FRONTEND_DEPLOYMENT.md](FRONTEND_DEPLOYMENT.md).
+For production deployment to Render.com, see [RENDER_DEPLOYMENT_GUIDE.md](RENDER_DEPLOYMENT_GUIDE.md).
 
 ## 📸 Screenshots
 
@@ -272,55 +275,54 @@ sqlx migrate run
 
 ## Deployment
 
-### Azure Deployment
+### Render.com Deployment (Recommended)
 
-Comprehensive deployment guide: [azure/DEPLOYMENT_GUIDE.md](azure/DEPLOYMENT_GUIDE.md)
+The easiest way to deploy is using Render's Blueprint feature.
 
-**Quick Deploy:**
+**One-Click Deploy:**
+
+1. Sign in to [Render.com](https://render.com)
+2. Click "New +" → "Blueprint"
+3. Connect to `CoforgeInsurance/stoic-wisdom-api`
+4. Render automatically detects `render.yaml`
+5. Click "Apply" and wait for deployment
+
+**Services Created:**
+- PostgreSQL database (managed)
+- Backend API (Docker)
+- Frontend SSR app (Node.js)
+
+**Complete Guide:** See [RENDER_DEPLOYMENT_GUIDE.md](RENDER_DEPLOYMENT_GUIDE.md) for detailed instructions.
+
+### Local Development with PostgreSQL
+
+Use Docker Compose to run PostgreSQL locally:
 
 ```bash
-# Set your configuration
-export AZURE_ACR_NAME="youruniqueacrname"
-export AZURE_STORAGE_ACCOUNT="youruniquestorage"
+# Start PostgreSQL and API
+docker-compose up
 
-# Run deployment script
-cd azure
-./deploy.sh
+# The database will be available at postgresql://postgres:postgres@localhost:5432/stoic_wisdom
 ```
 
-**Required Azure Configuration:**
+### CI/CD
 
-| Variable | Description | Where to Set |
-|----------|-------------|--------------|
-| `AZURE_RESOURCE_GROUP` | Resource group name | Environment variable |
-| `AZURE_ACR_NAME` | Container registry (globally unique) | Environment variable |
-| `AZURE_STORAGE_ACCOUNT` | Storage account (globally unique) | Environment variable |
+Render.com automatically deploys when you push to `main`:
 
-See [azure/DEPLOYMENT_GUIDE.md](azure/DEPLOYMENT_GUIDE.md) for complete instructions.
+```bash
+git add .
+git commit -m "Update feature"
+git push origin main
+```
 
-### CI/CD with GitHub Actions
-
-The repository includes a GitHub Actions workflow for automated deployment.
-
-**Required GitHub Secrets:**
-
-1. Go to repository Settings → Secrets and variables → Actions
-2. Add these secrets:
-   - `AZURE_CREDENTIALS` - Service principal JSON
-   - `AZURE_RESOURCE_GROUP` - Your resource group name
-   - `AZURE_ACR_NAME` - Your ACR name
-   - `AZURE_ACI_NAME` - Your ACI name
-   - `AZURE_STORAGE_ACCOUNT` - Your storage account name
-   - `AZURE_STORAGE_KEY` - Your storage account key
-
-See [azure/DEPLOYMENT_GUIDE.md](azure/DEPLOYMENT_GUIDE.md) for detailed CI/CD setup.
+Deployment happens automatically - no GitHub Actions configuration needed!
 
 ## Performance
 
 - **Response Time**: < 50ms for most endpoints
 - **Docker Image**: < 50MB (multi-stage build with Alpine)
 - **Memory Footprint**: ~50MB running container
-- **Database**: SQLite with connection pooling
+- **Database**: PostgreSQL with connection pooling (SQLite supported for local dev)
 - **Optimization**: Release build with LTO and stripped binaries
 
 ## Project Structure
@@ -337,17 +339,19 @@ stoic-wisdom-api/
 │   ├── 003_seed_quotes.sql
 │   ├── 004_seed_timeline_incidents.sql
 │   └── 005_seed_quote_themes.sql
+├── frontend/             # Next.js SSR frontend
+│   ├── app/              # Next.js app router
+│   ├── components/       # React components
+│   ├── lib/              # API client and utilities
+│   └── public/           # Static assets
+├── scripts/              # Deployment and migration scripts
+│   └── migrate_sqlite_to_postgres.sh
 ├── tests/                # Integration tests
-├── azure/                # Azure deployment files
-│   ├── deploy.sh         # Automated deployment script
-│   ├── aci-deployment.yaml
-│   └── DEPLOYMENT_GUIDE.md
-├── .github/
-│   └── workflows/
-│       └── azure-deploy.yml
 ├── Cargo.toml            # Rust dependencies
 ├── Dockerfile            # Multi-stage Docker build
-└── docker-compose.yml    # Local development setup
+├── docker-compose.yml    # Local development setup
+├── render.yaml           # Render.com deployment config
+└── .env.example          # Environment variable template
 ```
 
 ## Architecture
@@ -355,7 +359,7 @@ stoic-wisdom-api/
 ### Technology Choices
 
 - **Axum**: High-performance async web framework built on Tokio
-- **SQLite**: Lightweight, serverless database perfect for read-heavy workloads
+- **PostgreSQL**: Robust relational database with excellent scalability (SQLite also supported)
 - **sqlx**: Compile-time checked SQL queries for type safety
 - **Tower**: Middleware for CORS and tracing
 
@@ -369,10 +373,10 @@ stoic-wisdom-api/
 
 ### Scalability
 
-- **Horizontal Scaling**: Stateless API design allows multiple instances
-- **Read Replicas**: SQLite supports read replicas for higher load
-- **Caching**: Easy to add Redis/Memcached for frequently accessed data
-- **CDN**: Static responses can be cached at edge locations
+- **Horizontal Scaling**: Stateless API design allows multiple instances on Render.com
+- **Database Scaling**: PostgreSQL supports read replicas and vertical scaling
+- **Caching**: Easy to add Redis for frequently accessed data
+- **CDN**: Responses can be cached at edge locations
 
 ## Content Quality
 
@@ -442,11 +446,10 @@ Manual testing checklist:
 
 ## 📚 Documentation
 
+- **[Render.com Deployment Guide](RENDER_DEPLOYMENT_GUIDE.md)** - Complete deployment guide for Render.com
 - **[API Examples](API_EXAMPLES.md)** - Comprehensive API usage guide with examples
-- **[Frontend Deployment Guide](FRONTEND_DEPLOYMENT.md)** - Step-by-step Azure Static Web Apps deployment
 - **[Frontend Summary](FRONTEND_SUMMARY.md)** - Complete frontend implementation details
 - **[Frontend README](frontend/README.md)** - Frontend-specific documentation
-- **[Azure Setup](AZURE_SETUP.md)** - Backend Azure deployment configuration
 - **[Architecture](ARCHITECTURE.md)** - System architecture overview
 - **[API Specification](SPECIFICATION.md)** - API specification and data models
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Complete project structure guide
@@ -469,8 +472,7 @@ This project is licensed under the MIT License.
 
 For issues, questions, or contributions:
 - Open an issue on GitHub
-- Check the [Frontend Deployment Guide](FRONTEND_DEPLOYMENT.md)
-- Check the [Azure Deployment Guide](azure/DEPLOYMENT_GUIDE.md)
+- Check the [Render.com Deployment Guide](RENDER_DEPLOYMENT_GUIDE.md)
 - Review the [API Examples](API_EXAMPLES.md)
 - Review the API specification in [SPECIFICATION.md](SPECIFICATION.md)
 

@@ -1,5 +1,5 @@
 # Build stage
-FROM rust:1.85-alpine AS builder
+FROM rust:alpine AS builder
 
 # Install build dependencies (added postgresql-dev for PostgreSQL support)
 RUN apk add --no-cache musl-dev sqlite-dev postgresql-dev

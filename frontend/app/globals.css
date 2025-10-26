@@ -29,6 +29,8 @@ body {
   color: var(--foreground);
   font-family: "Crimson Text", "Georgia", "Times New Roman", serif;
   line-height: 1.7;
+  /* Allow natural page scrolling (was implicitly blocked by container overflow rules elsewhere) */
+  overflow-y: auto;
 }
 
 /* Vintage decorative elements */
@@ -59,7 +61,8 @@ body {
 /* Vintage paper texture overlay */
 .paper-texture {
   position: relative;
-  overflow: hidden;
+  /* Remove overflow:hidden to avoid trapping scroll when applied on <body> */
+  /* overflow: hidden; */
 }
 
 .paper-texture::before {

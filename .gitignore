@@ -24,3 +24,9 @@
 /frontend/.env.production.local
 /frontend/.env.development.local
 /frontend/.env.test.local
+
+# Test evidence and reports
+/test-evidence/
+/frontend/playwright-report/
+/frontend/test-results/
+/frontend/.playwright/

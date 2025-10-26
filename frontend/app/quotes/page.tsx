@@ -13,6 +13,20 @@ export default function QuotesPage() {
   const { data: quotes, error, isLoading } = useSWR<Quote[]>('quotes', fetcher);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPhilosopher, setSelectedPhilosopher] = useState<string>('all');
+  const [expandedQuotes, setExpandedQuotes] = useState<Set<number>>(new Set());
+
+  // Toggle expand/collapse for a quote
+  const toggleQuote = (quoteId: number) => {
+    setExpandedQuotes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(quoteId)) {
+        newSet.delete(quoteId);
+      } else {
+        newSet.add(quoteId);
+      }
+      return newSet;
+    });
+  };
 
   // Get unique philosophers from quotes
   const philosophers = useMemo(() => {
@@ -107,13 +121,29 @@ export default function QuotesPage() {
             <ErrorDisplay message="Unable to load quotes. Please try again." />
           ) : filteredQuotes && filteredQuotes.length > 0 ? (
             <div className="max-w-4xl mx-auto space-y-6">
-              {filteredQuotes.map((quote) => (
+              {filteredQuotes.map((quote) => {
+                const isExpanded = expandedQuotes.has(quote.id);
+                const displayText = (isExpanded && quote.full_text) ? quote.full_text : quote.text;
+                const hasFullText = quote.full_text && quote.full_text !== quote.text;
+                
+                return (
                 <div key={quote.id} className="vintage-card rounded-lg p-6 md:p-8">
                   <div className="text-3xl text-[var(--secondary)] mb-2">"</div>
                   <blockquote className="text-xl md:text-2xl font-serif text-[var(--foreground)] leading-relaxed mb-4">
-                    {quote.text}
+                    {displayText}
                   </blockquote>
                   <div className="text-3xl text-[var(--secondary)] text-right mb-4">"</div>
+                  
+                  {hasFullText && (
+                    <div className="mb-4">
+                      <button
+                        onClick={() => toggleQuote(quote.id)}
+                        className="text-sm text-[var(--primary)] hover:text-[var(--accent)] font-sans font-semibold underline"
+                      >
+                        {isExpanded ? 'Show shorter version' : 'Read full quote'}
+                      </button>
+                    </div>
+                  )}
                   
                   <div className="border-t border-[var(--border)] pt-4">
                     <p className="text-base font-semibold text-[var(--primary)] mb-2">
@@ -144,7 +174,8 @@ export default function QuotesPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12">

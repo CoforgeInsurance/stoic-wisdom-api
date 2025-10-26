@@ -25,8 +25,8 @@ async fn test_philosophers_table_creation() {
         .await
         .expect("Failed to create in-memory database");
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
+    // Run migrations (SQLite-specific)
+    sqlx::migrate!("./migrations-sqlite")
         .run(&pool)
         .await
         .expect("Failed to run migrations");
@@ -48,8 +48,8 @@ async fn test_quotes_seeded() {
         .await
         .expect("Failed to create in-memory database");
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
+    // Run migrations (SQLite-specific)
+    sqlx::migrate!("./migrations-sqlite")
         .run(&pool)
         .await
         .expect("Failed to run migrations");
@@ -71,8 +71,8 @@ async fn test_themes_seeded() {
         .await
         .expect("Failed to create in-memory database");
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
+    // Run migrations (SQLite-specific)
+    sqlx::migrate!("./migrations-sqlite")
         .run(&pool)
         .await
         .expect("Failed to run migrations");
@@ -94,8 +94,8 @@ async fn test_timeline_seeded() {
         .await
         .expect("Failed to create in-memory database");
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
+    // Run migrations (SQLite-specific)
+    sqlx::migrate!("./migrations-sqlite")
         .run(&pool)
         .await
         .expect("Failed to run migrations");
@@ -117,8 +117,8 @@ async fn test_incidents_seeded() {
         .await
         .expect("Failed to create in-memory database");
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
+    // Run migrations (SQLite-specific)
+    sqlx::migrate!("./migrations-sqlite")
         .run(&pool)
         .await
         .expect("Failed to run migrations");

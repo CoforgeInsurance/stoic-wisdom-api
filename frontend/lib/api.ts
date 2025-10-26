@@ -26,6 +26,7 @@ export interface Quote {
   source: string;
   context: string;
   modern_interpretation: string;
+  full_text?: string;
 }
 
 export interface Theme {

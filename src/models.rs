@@ -21,6 +21,7 @@ pub struct Quote {
     pub source: String,
     pub context: Option<String>,
     pub modern_interpretation: Option<String>,
+    pub full_text: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, FromRow)]
@@ -32,6 +33,7 @@ pub struct QuoteWithPhilosopher {
     pub source: String,
     pub context: Option<String>,
     pub modern_interpretation: Option<String>,
+    pub full_text: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, FromRow)]

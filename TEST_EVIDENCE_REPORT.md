@@ -15,8 +15,10 @@ This report provides comprehensive evidence of testing for the Stoic Wisdom API 
 |--------------|-----------|--------|--------|--------|
 | Backend Integration | 6 | 6 | 0 | ✅ PASS |
 | Frontend Build | 1 | 1 | 0 | ✅ PASS |
-| E2E Test Framework | N/A | N/A | N/A | ✅ Ready |
-| Performance Benchmarks | N/A | N/A | N/A | ✅ Ready |
+| E2E Test Framework | Ready | Ready | Ready | ✅ Configured* |
+| Performance Benchmarks | Ready | Ready | Ready | ✅ Configured* |
+
+*E2E tests and performance benchmarks are configured and ready to run. Execution requires running services (see "How to Use" section).
 
 ## Backend Tests
 
@@ -295,7 +297,7 @@ The test suite is ready for CI/CD integration:
 1. ✅ All core testing infrastructure complete
 2. ✅ All backend tests passing
 3. ✅ Frontend builds successfully
-4. ⏭️ Run E2E tests in real environment (requires running services)
+4. Run E2E tests in real environment (requires running services)
 
 ### Future Enhancements
 1. Add visual regression testing
